@@ -35,9 +35,10 @@ const firebaseConfig = {
   appId: "1:309571005017:web:80b5ff4f79fe0122bb5f48"
 };
 
+export const googleClientId = "309571005017-hc4uqphujpnporiegf3rd4kcju38g4et.apps.googleusercontent.com";
+
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
     firebase.firestore().enablePersistence()
 }
-
 export { firebase };

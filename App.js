@@ -1,16 +1,18 @@
-import React, {useState, createContext, useContext, useEffect} from 'react';
-import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity, Keyboard,SafeAreaView, ScrollView, Platform } from 'react-native';
+import React, {useState, createContext, useContext,useEffect } from 'react';
+import { StyleSheet, Text, View,TouchableOpacity, SafeAreaView, ScrollView, Platform } from 'react-native';
 import Task from './components/Task';
 import CreateTask from './components/newTask';
 import ViewTask from './components/ViewTask';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { doc, setDoc } from "firebase/firestore"; 
 import {firebase } from './firebase/config'
-
+import auth from './auth/auth'
+import DrawerItems from './utilities/DrawerItem'
+import { func } from 'prop-types';
 const Stack = createNativeStackNavigator();
-
+const Drawer = createDrawerNavigator();
 const taskClicked = (index, navigation) => {
   navigation.navigate('ViewTask', {
     index: index,
@@ -40,20 +42,64 @@ const NewTaskScreen = ({ navigation, route }) => {
   return <CreateTask onSubmit={onSubmit} edit={!!route.params.task} task={route.params.task}/>
 };
 
-function HomeScreen({ navigation }) {
-  const { taskItems } = useContext(TaskContext);
+function firebaseSignIn(){
+  console.log("dasda")
 
-  firebase.database().ref('users/').push({
-  email:'ssssssssqqqq',
-  fname:'adsasd',
-  lname:'adsasd'
-}).then((data)=>{
-  //success callback
-  console.log('data ' , data)
-}).catch((error)=>{
-  //error callback
-  console.log('error ' , error)
-})
+  
+//   const auth = firebase.auth();
+// auth.signInWithCredential(provider)
+// .then((result) => {
+//   console.log(result)
+
+//   // This gives you a Google Access Token. You can use it to access the Google API.
+//   const credential = GoogleAuthProvider.credentialFromResult(result);
+//   const token = credential.accessToken;
+//   // The signed-in user info.
+//   const user = result.user;
+//   console.log(user)
+//   // ...
+// }).catch((error) => {
+//   // Handle Errors here.
+//   const errorCode = error.code;
+//   const errorMessage = error.message;
+//   // The email of the user's account used.
+//   const email = error.email;
+//   // The AuthCredential type that was used.
+//   const credential = GoogleAuthProvider.credentialFromError(error);
+//   // ...
+// });
+
+}
+
+ 
+const handleConnectionChange = (isConnected) => {
+        console.log(`is connected: ${isConnected}`);
+}
+function HomeScreenMain({ navigation }){
+
+  return(
+  <Stack.Navigator>
+  <Stack.Screen name="Task" options={{headerShown: false}} component={HomeScreen}/>
+  <Stack.Screen name="NewTask"  options={{ title: 'Add New Task' }} component={NewTaskScreen} />
+  <Stack.Screen name="ViewTask" options={{title: 'Task Details' }} component={ViewTaskScreen} />
+</Stack.Navigator>
+  )
+}
+
+function HomeScreen({ navigation }) {
+      // auth()
+  const { taskItems } = useContext(TaskContext);
+//   firebase.database().ref('users/').push({
+//   email:'ssssssssqqqq',
+//   fname:'adsasd',
+//   lname:'adsasd'
+// }).then((data)=>{
+//   //success callback
+//   console.log('data ' , data)
+// }).catch((error)=>{
+//   //error callback
+//   console.log('error ' , error)
+// })
 
 //   firebase
 //   .auth()
@@ -94,13 +140,13 @@ function HomeScreen({ navigation }) {
   //   console.log(querySnapshot)
   // })
 
-    const userAgeRef = firebase.database().ref('users/');
-    userAgeRef.on('value', snapshot => {
+    // const userAgeRef = firebase.database().ref('users/');
+    // userAgeRef.on('value', snapshot => {
 
-      console.log('Users age: ', snapshot.val());
-    console.log('ssssss')
+    //   console.log('Users age: ', snapshot.val());
+    // console.log('ssssss')
 
-    });
+    // });
 
 
   return (
@@ -147,15 +193,12 @@ export default function App() {
 
   return (
     <TaskContext.Provider value={{ taskItems, addTask}}>
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Task" options={{headerShown: false}} component={HomeScreen}/>
-        <Stack.Screen name="NewTask"  options={{ title: 'Add New Task' }} component={NewTaskScreen} />
-        <Stack.Screen name="ViewTask" options={{title: 'Task Details' }} component={ViewTaskScreen} />
-      </Stack.Navigator>   
-    </NavigationContainer>
+      <NavigationContainer>
+        <Drawer.Navigator drawerType="front" initialRouteName="Home" options={{headerShown: false}}>
+            <Drawer.Screen name="Home" component={HomeScreenMain} />
+        </Drawer.Navigator>   
+      </NavigationContainer>
     </TaskContext.Provider>
-
   );
 
 }
